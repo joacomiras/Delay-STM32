@@ -1,22 +1,21 @@
-#include "stm32f103xb.h"  
+
 #include "delay.h"
 
-volatile uint32_t tick_ms = 0;
-
-
-void delayInit(void) {
-    // Configura el SysTick para interrumpir cada 1 ms (72 MHz / 72000 = 1000 Hz)
-    SysTick_Config(SystemCoreClock / 1000);
+void delay_timer_init(void) {
+    RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
+    TIM2->PSC = 71;
+    TIM2->ARR = 0xFFFFFFFF;
+    TIM2->CR1 |= TIM_CR1_CEN;
+    while (!(TIM2->SR & TIM_SR_UIF));
 }
 
-/* Manejo de timer */
-void SysTick_Handler(void) {
-    if (tick_ms > 0) tick_ms--;
+void delay_us(uint32_t us) {
+    TIM2->CNT = 0;
+    while (TIM2->CNT < us);
 }
 
-/* Función delay en milisegundos */ 
-void delay_ms(int ms) {
-    delayInit();
-    tick_ms = ms;
-    while (tick_ms);
+void delay_ms(uint32_t ms) {
+    for (uint32_t i = 0; i < ms; i++) {
+        delay_us(1000); 
+    }
 }
