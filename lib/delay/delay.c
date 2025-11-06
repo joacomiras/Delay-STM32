@@ -1,7 +1,7 @@
 
 #include "delay.h"
 
-void delay_timer_init(void) {
+void delay_init(void) {
     RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
     TIM2->PSC = 71;
     TIM2->ARR = 0xFFFFFFFF;
